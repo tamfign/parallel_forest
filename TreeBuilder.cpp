@@ -185,9 +185,6 @@ TreeNode* TreeBuilder::Split(
                     double entropyChild =
                         ComputeEntropy( classDistArr[childId], numChildren );
                     infoGain -= numChildren / (double) numInstances * entropyChild;
-                    // double giniChild =
-                    //     ComputeGini( classDistArr[childId], numChildren );
-                    // giniImpurity -= numChildren / (double) numInstances * giniChild;
                 }
 
                 // Get max split outcome and related feature
