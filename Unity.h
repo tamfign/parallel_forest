@@ -40,7 +40,6 @@ bool Compare(const MiniInstance & eleX, const MiniInstance & eleY);
 bool StrEqualCaseSen(const char *str1, const char *str2);
 bool StrEqualCaseInsen(const char *str1, const char *str2);
 
-	// Include string terminator
 unsigned int GetStrLength(const char *str);
 bool IsLetter(const char c);
 

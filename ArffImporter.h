@@ -2,14 +2,9 @@
 #ifndef _ARFF_IMPORTER_H_
 #define _ARFF_IMPORTER_H_
 
-#include "BasicDataStructures.h"
-#include "Helper.h"
-
+#include "Unity.h"
 #include <stdio.h>
 #include <string.h>
-
-using namespace BasicDataStructures;
-using namespace MyHelper;
 
 class ArffImporter {
 #define READ_LINE_MAX     5000
