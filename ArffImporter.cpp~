@@ -50,6 +50,7 @@ void ArffImporter::Read(const char *fileName)
 
 	if ((fp = fopen(fileName, "r+")) == nullptr)
 	{
+		printf("File: %s not found!\n", fileName);
 		return;
 	}
 	// Assuming all data types of all features are double
@@ -76,6 +77,9 @@ void ArffImporter::Read(const char *fileName)
 			// Read feature names
 			if (StrEqualCaseInsen(featureType, KEYWORD_NUMERIC))
 			{
+				//printf( "Feature name: %s, length: %d \n", 
+				//    featureName, GetStrLength( featureName ) );
+
 				NumericAttr feature;
 				feature.name = featureName;
 				feature.min = 0.0;
@@ -93,6 +97,8 @@ void ArffImporter::Read(const char *fileName)
 				while (sscanf(featureType, "%[^,}]%n", className, &readSize) >
 					   0)
 				{
+					printf("Class name: %s \n", className);
+
 					classVec.push_back(className);
 					className = (char *) malloc(TOKEN_LENGTH_MAX);
 
@@ -159,6 +165,13 @@ void ArffImporter::Read(const char *fileName)
 			for (unsigned int i = 0; i < numFeatures; i++)
 			{
 				featureVec[i].mean = featureValueSumArr[i] / instanceSize;
+
+				// printf(
+				//     "feature %u, max: %f, min: %f, mean: %f\n",
+				//     i,
+				//     featureVec[i].max,
+				//     featureVec[i].min,
+				//     featureVec[i].mean );
 			}
 
 			free(featureValueSumArr);
