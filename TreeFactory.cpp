@@ -2,17 +2,17 @@
 #include "TreeBuilder.h"
 
 
-TreeBuilder::TreeBuilder()
+TreeFactory::TreeFactory()
 {
     
 }
 
-TreeBuilder::~TreeBuilder()
+TreeFactory::~TreeFactory()
 {
     
 }
 
-void TreeBuilder::Init(
+void TreeFactory::Init(
     const vector<NumericAttr>& fv,
     const vector<char*>& cv,
     const Instance* it,
@@ -26,7 +26,7 @@ void TreeBuilder::Init(
     numClasses = classVec.size();
 }
 
-TreeNode* TreeBuilder::BuildTree( const unsigned int numFeaToSelect )
+TreeNode* TreeFactory::Generate( const unsigned int numFeaToSelect )
 {
     numFeaToTry = numFeaToSelect;
     
@@ -65,7 +65,7 @@ TreeNode* TreeBuilder::BuildTree( const unsigned int numFeaToSelect )
     return root;
 }
 
-TreeNode* TreeBuilder::Split(
+TreeNode* TreeFactory::Split(
     MiniInstance* miniInstanceArr,
     unsigned int* featureIndexArray,
     const unsigned int* parentClassDist,
@@ -73,12 +73,8 @@ TreeNode* TreeBuilder::Split(
     unsigned int height )
 {
     double infoGainMax = 0;
-
-    // The node is too small thus it is ignored.
+    
     if (numInstances < MIN_NODE_SIZE) return nullptr;
-
-    // The node is small, make it a leaf node
-    // or node is pure.
     if (numInstances < MIN_NODE_SIZE_TO_SPLIT)
     {
         TreeNode* leaf = new TreeNode;
@@ -88,12 +84,7 @@ TreeNode* TreeBuilder::Split(
         return leaf;
     }
 
-    // Compute entropy of parent node.
     double entropyParent = ComputeEntropy( parentClassDist, numInstances );
-    // double giniParent = ComputeGini( parentClassDist, numInstances );
-
-    // Parent node is pure.
-    // if (giniParent <= 0.0)
     if (entropyParent <= 0.0)
     {
         TreeNode* leaf = new TreeNode;
@@ -148,7 +139,6 @@ TreeNode* TreeBuilder::Split(
             miniInstanceArr + numInstances,
             Compare );
 
-        // Reset split index and child class distribution
         memset( classDistArr[0], 0, numClasses * sizeof( unsigned int ) );
         memmove(
             classDistArr[1],
@@ -156,8 +146,6 @@ TreeNode* TreeBuilder::Split(
             numClasses * sizeof( unsigned int ) );
 
         bool featureIndexStored = false;
-
-        // Find the best split threshold
         for (unsigned int candidateId = 1;
             candidateId < numInstances; candidateId++)
         {
@@ -223,10 +211,6 @@ TreeNode* TreeBuilder::Split(
     
 
     TreeNode* node;
-
-    // Split threshold not found, 
-    // or gini impurity / info gain exceeds threshold,
-    // thus have reached leaf node.
     if (!gainFound)
     {
         free( selectedClassDistArr[0] );
@@ -277,19 +261,7 @@ TreeNode* TreeBuilder::Split(
     return node;
 }
 
-void TreeBuilder::PrintTree( const TreeNode* node, unsigned int h )
-{
-    if (node == nullptr) return;
-
-    for (unsigned int i = 0; i <= h; i++) printf( "-" );
-    printf( "feature: %s, ", featureVec[node->featureIndex].name );
-    printf( "threshold: %f\n", node->threshold );
-
-    for (unsigned int childId = 0; childId < NUM_CHILDREN; childId++)
-        PrintTree( node->childrenArr[childId], h + 1 );
-}
-
-inline double TreeBuilder::ComputeEntropy(
+inline double TreeFactory::ComputeEntropy(
     const unsigned int* classDistribution,
     const unsigned int numInstances )
 {
@@ -307,24 +279,7 @@ inline double TreeBuilder::ComputeEntropy(
     return entropy;
 }
 
-inline double TreeBuilder::ComputeGini(
-    const unsigned int* classDistribution,
-    const unsigned int numInstances )
-{
-    if (numInstances == 0) return 0.0;
-
-    double gini = 1.0;
-
-    for (unsigned short i = 0; i < numClasses; i++)
-    {
-        double temp = (double) classDistribution[i] / numInstances;
-        gini -= temp * temp;
-    }
-
-    return gini;
-}
-
-void TreeBuilder::DestroyNode( TreeNode* node )
+void TreeFactory::DestroyNode( TreeNode* node )
 {
     if (node == nullptr) return;
 

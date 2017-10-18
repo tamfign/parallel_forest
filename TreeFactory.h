@@ -1,6 +1,6 @@
 
-#ifndef _TREE_BUILDER_H_
-#define _TREE_BUILDER_H_
+#ifndef _TREE_FACTORY_H_
+#define _TREE_FACTORY_H_
 
 #include "BasicDataStructures.h"
 #include "Helper.h"
@@ -12,25 +12,24 @@
 using namespace BasicDataStructures;
 using namespace MyHelper;
 
-class TreeBuilder
+class TreeFactory
 {
 #define MIN_NODE_SIZE          1
 #define MIN_NODE_SIZE_TO_SPLIT 2
 #define NUM_CHILDREN           2
 
 public:
-    TreeBuilder();
-    ~TreeBuilder();
+    TreeFactory();
+    ~TreeFactory();
 
     void Init(
         const vector<NumericAttr>& fv,
         const vector<char*>& cv,
         const Instance* it,
         const unsigned int numInstances );
-    TreeNode* BuildTree( const unsigned int numFeaToSelect );
+    TreeNode* Generate( const unsigned int numFeaToSelect );
     void PrintTree( const TreeNode* node, unsigned int h );
     void DestroyNode( TreeNode* node );
-
 
 private:
     TreeNode* Split(

@@ -1,21 +1,20 @@
 
-#ifndef _CLASSIFIER_H_
-#define _CLASSIFIER_H_
+#ifndef _RANDOM_FOREST_H_
+#define _RANDOM_FOREST_H_
 
 #include "TreeBuilder.h"
 #include <omp.h>
 #include <time.h>
 
 
-class Classifier
+class RandomForest
 {
-#define MPI_ROOT_ID             0
 #define RANDOM_FEATURE_SET_SIZE 10
 #define NUM_TREES               100
 
 public:
-    Classifier();
-    ~Classifier();
+    RandomForest();
+    ~RandomForest();
 
     void Train(
         const Instance* instanceTable,
@@ -25,11 +24,6 @@ public:
     void Classify( 
         const Instance* instanceTable,
         const unsigned int numInstances );
-    char* Analyze(
-        const char* str,
-        const vector<NumericAttr>& featureVec,
-        const vector<char*>& cv );
-
 
 private:
     // Return the index of the predicted class
@@ -42,13 +36,12 @@ private:
     vector<NumericAttr> featureVec;
     
     TreeBuilder treeBuilder;
-    TreeNode** rootArr = nullptr;
+    TreeNode** root = nullptr;
     unsigned int numTrees;
 
-    // MPI status
-    int mpiNodeId;
-    int numMpiNodes;
-    int mpiInitialized;
+    int rank;
+    int size;
+    int inited;
 };
 
 #endif

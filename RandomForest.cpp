@@ -1,39 +1,32 @@
 
-#include "Classifier.h"
+#include "RandomForest.h"
 
-
-Classifier::Classifier()
+RandomForest::RandomForest()
 {
     // Init MPI
-    MPI_Initialized( &mpiInitialized );
-    if (!mpiInitialized) MPI_Init( nullptr, nullptr );
+    MPI_Initialized( &inited );
+    if (!inited) MPI_Init( nullptr, nullptr );
 
-    MPI_Comm_size( MPI_COMM_WORLD, &numMpiNodes );
-    MPI_Comm_rank( MPI_COMM_WORLD, &mpiNodeId );
-
-    if (mpiNodeId == MPI_ROOT_ID)
-        printf( "There are %d nodes doing computation.\n", numMpiNodes );
-    
-    printf( "Id of this node is: %d.\n", mpiNodeId );
+    MPI_Comm_size( MPI_COMM_WORLD, &size );
+    MPI_Comm_rank( MPI_COMM_WORLD, &rank );
 }
 
-Classifier::~Classifier()
+RandomForest::~RandomForest()
 {
     // Destory trees
-    if (rootArr != nullptr)
+    if (root != nullptr)
     {
         for (unsigned int i = 0; i < numTrees; i++)
             treeBuilder.DestroyNode( rootArr[i] );
-        free( rootArr );
-        rootArr = nullptr;
+        free( root );
+        root = nullptr;
     }
 
-    MPI_Initialized( &mpiInitialized );
-    if (mpiInitialized) MPI_Finalize();
+    MPI_Initialized( &inited );
+    if (inited) MPI_Finalize();
 }
 
-
-void Classifier::Train(
+void RandomForest::Train(
     const Instance* instanceTable,
     const vector<NumericAttr>& fv,
     const vector<char*>& cv,
@@ -41,69 +34,34 @@ void Classifier::Train(
 {
     classVec = cv;
     featureVec = fv;
-    
-    /******************** Init tree constructer ********************/
-    if (NUM_TREES % numMpiNodes > 0)
+
+    if (NUM_TREES % size > 0)
     {
-        numTrees = NUM_TREES / numMpiNodes + 1;
-        if (mpiNodeId == numMpiNodes - 1)
-            numTrees = NUM_TREES - numTrees * (numMpiNodes - 1);
+        numTrees = NUM_TREES / size + 1;
+        if (rank == size - 1)
+            numTrees = NUM_TREES - numTrees * (size - 1);
     }
     else
-        numTrees = NUM_TREES / numMpiNodes;
+        numTrees = NUM_TREES / size;
 
-    rootArr = (TreeNode**) malloc( numTrees * sizeof( TreeNode* ) );
+    root = (TreeNode**) malloc( numTrees * sizeof( TreeNode* ) );
     treeBuilder.Init( fv, cv, instanceTable, numInstances );
 
-    printf( "Node %d constructed %u trees.\n", mpiNodeId, numTrees );
-
-    // Seed randomizer based on mpi node id
     srand( mpiNodeId + 1 );
-
-    time_t start, end;
-    double dif;
-    time( &start );
-
     #pragma omp parallel
     {
-        #pragma omp single
-        printf(
-            "There're %d threads running on node %d.\n",
-            omp_get_num_threads(),
-            mpiNodeId );
-
         #pragma omp for schedule(dynamic)
         for (unsigned int treeId = 0; treeId < numTrees; treeId++)
         {
             rootArr[treeId] = treeBuilder.BuildTree( RANDOM_FEATURE_SET_SIZE );
         }
     }
-    
-    time( &end );
-    dif = difftime( end, start );
-
-    printf( "Node %d builds forests: time taken is %.2lf seconds.\n", mpiNodeId, dif );
 }
 
-void Classifier::Classify(
+void RandomForest::Classify(
     const Instance* instanceTable,
     const unsigned int numInstances )
 {
-    if (classVec.empty())
-    {
-        printf( "Please train the model first.\n" );
-        
-        MPI_Initialized( &mpiInitialized );
-        if (mpiInitialized)
-        {
-            int err = 0;
-            MPI_Abort( MPI_COMM_WORLD, err );
-        }
-
-        return;
-    }
-
-    /******************* Prepare buffer *******************/
     unsigned short numClasses = classVec.size();
     unsigned int correctCounter = 0;
     unsigned int* votes = (unsigned int*) 
@@ -112,19 +70,26 @@ void Classifier::Classify(
     #pragma omp parallel for schedule(dynamic)
     for (unsigned int i = 0; i < numInstances; i++)
         Classify( instanceTable[i], votes, i );
-    
-    /************************** Do reduction *************************/
-    if (mpiNodeId == MPI_ROOT_ID)
+
+    if (mpiNodeId == 0)
         CheckMPIErr( MPI_Reduce( MPI_IN_PLACE, votes, numClasses * numInstances, 
             MPI_UNSIGNED, MPI_SUM, 0, MPI_COMM_WORLD ), mpiNodeId );
     else
         CheckMPIErr( MPI_Reduce( votes, nullptr, numClasses * numInstances, 
             MPI_UNSIGNED, MPI_SUM, 0, MPI_COMM_WORLD ), mpiNodeId );
-    
-    /************************ Compute accuracy ************************/
-    if (mpiNodeId == MPI_ROOT_ID)
+
+    if (mpiNodeId == 0)
     {
-        #pragma omp parallel for reduction(+: correctCounter) schedule(static)
+        Analysis(votes);
+    }
+
+    free( votes );
+    votes = nullptr;
+}
+
+inline void RandomForest::Analysis(unsigned int* votes)
+{
+		#pragma omp parallel for reduction(+: correctCounter) schedule(static)
         for (unsigned int i = 0; i < numInstances; i++)
         {
             unsigned short predictedClassIndex = 
@@ -138,13 +103,9 @@ void Classifier::Classify(
 
         printf( "Correct rate: %f\n", correctRate );
         printf( "Incorrect rate: %f\n", incorrectRate );
-    }
-
-    free( votes );
-    votes = nullptr;
 }
 
-inline void Classifier::Classify(
+inline void RandomForest::Classify(
     const Instance& instance, 
     unsigned int* votes, 
     const unsigned int instId )
