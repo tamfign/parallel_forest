@@ -2,7 +2,7 @@
 #ifndef _RANDOM_FOREST_H_
 #define _RANDOM_FOREST_H_
 
-#include "TreeBuilder.h"
+#include "TreeFactory.h"
 #include <omp.h>
 #include <time.h>
 

@@ -1,12 +1,12 @@
 
 #include "Unity.h"
 
-bool Unity::Compare(const MiniInstance & eleX, const MiniInstance & eleY)
+bool Compare(const MiniInstance & eleX, const MiniInstance & eleY)
 {
 	return eleX.featureValue < eleY.featureValue;
 }
 
-Instance Unity::Tokenize(const char *str,
+Instance Tokenize(const char *str,
 						 const vector < NumericAttr > &featureVec)
 {
 	unsigned int numFeatures = featureVec.size();
@@ -49,12 +49,12 @@ Instance Unity::Tokenize(const char *str,
 	return instance;
 }
 
-bool Unity::IsLetter(const char c)
+bool IsLetter(const char c)
 {
 	return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z');
 }
 
-bool Unity::StrEqualCaseSen(const char *str1, const char *str2)
+bool StrEqualCaseSen(const char *str1, const char *str2)
 {
 	unsigned short i = 0;
 	while (str1[i] != '\0' && str1[i] == str2[i])
@@ -63,7 +63,7 @@ bool Unity::StrEqualCaseSen(const char *str1, const char *str2)
 	return (str1[i] == '\0' && str2[i] == '\0') ? true : false;
 }
 
-bool Unity::StrEqualCaseInsen(const char *str1, const char *str2)
+bool StrEqualCaseInsen(const char *str1, const char *str2)
 {
 	unsigned short i = 0;
 	while (str1[i] != '\0' &&
@@ -75,7 +75,7 @@ bool Unity::StrEqualCaseInsen(const char *str1, const char *str2)
 	return (str1[i] == '\0' && str2[i] == '\0') ? true : false;
 }
 
-unsigned int Unity::GetStrLength(const char *str)
+unsigned int GetStrLength(const char *str)
 {
 	unsigned int len = 0;
 
@@ -84,13 +84,13 @@ unsigned int Unity::GetStrLength(const char *str)
 	return len;
 }
 
-unsigned int Unity::getIndexOfMax(const unsigned int *uintArray,
+unsigned int getIndexOfMax(const unsigned int *uintArray,
 								  const unsigned int length)
 {
 	return max_element(uintArray, uintArray + length) - uintArray;
 }
 
-unsigned int Unity::removeDuplicates(double *sortedArr, unsigned int length)
+unsigned int removeDuplicates(double *sortedArr, unsigned int length)
 {
 	if (sortedArr == nullptr)
 		return 0;
@@ -109,7 +109,7 @@ unsigned int Unity::removeDuplicates(double *sortedArr, unsigned int length)
 	return uniqueId;
 }
 
-void Unity::CheckMPIErr(int errorCode, int mpiNodeId)
+void CheckMPIErr(int errorCode, int mpiNodeId)
 {
 	if (errorCode != MPI_SUCCESS)
 	{

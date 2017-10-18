@@ -4,7 +4,7 @@ SHELL = /bin/sh
 # Enable best optimization options
 CFLAGS = -Ofast -march=native -mtune=native -fopenmp -std=c++11
 CC = mpic++
-OBJECTS = Unity.o ArffImporter.o TreeBuilder.o Classifier.o
+OBJECTS = Unity.o ArffImporter.o TreeFactory.o RandomeForest.o
 
 exec: ${OBJECTS} Main.cpp
 	$(CC) ${CFLAGS} -o $@ ${OBJECTS} Main.cpp

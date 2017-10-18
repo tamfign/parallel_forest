@@ -2,8 +2,7 @@
 #ifndef _TREE_FACTORY_H_
 #define _TREE_FACTORY_H_
 
-#include "BasicDataStructures.h"
-#include "Helper.h"
+#include "Unity.h"
 
 #include <stdio.h>
 #include <string.h>
@@ -11,7 +10,6 @@
 class TreeFactory {
 #define MIN_NODE_SIZE          1
 #define MIN_NODE_SIZE_TO_SPLIT 2
-#define NUM_CHILDREN           2
 
   public:
 	TreeFactory();

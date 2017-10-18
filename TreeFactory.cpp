@@ -1,5 +1,5 @@
 
-#include "TreeBuilder.h"
+#include "TreeFactory.h"
 
 TreeFactory::TreeFactory()
 {
@@ -74,7 +74,8 @@ TreeNode *TreeFactory::Split(MiniInstance * miniInstanceArr,
 	if (numInstances < MIN_NODE_SIZE_TO_SPLIT)
 	{
 		TreeNode *leaf = new TreeNode;
-		leaf->childrenArr = nullptr;
+		leaf->left = nullptr;
+		leaf->right = nullptr;
 		leaf->classIndex = getIndexOfMax(parentClassDist, numClasses);
 
 		return leaf;
@@ -84,7 +85,8 @@ TreeNode *TreeFactory::Split(MiniInstance * miniInstanceArr,
 	if (entropyParent <= 0.0)
 	{
 		TreeNode *leaf = new TreeNode;
-		leaf->childrenArr = nullptr;
+		leaf->left = nullptr;
+		leaf->right = nullptr;
 		leaf->classIndex = getIndexOfMax(parentClassDist, numClasses);
 
 		return leaf;
@@ -93,19 +95,19 @@ TreeNode *TreeFactory::Split(MiniInstance * miniInstanceArr,
 	unsigned int selectedFeaIndex;
 	double selectedThreshold;
 
-	unsigned int childSizeArr[NUM_CHILDREN];
-	unsigned int selectedChildSizeArr[NUM_CHILDREN];
+	unsigned int leftSize, rightSize;
+	unsigned int selectedLeftSize, selectedRightSize;
 
 	// Init child class distribution vector
-	unsigned int *classDistArr[NUM_CHILDREN];
-	classDistArr[0] = (unsigned int *)
-		malloc(NUM_CHILDREN * numClasses * sizeof(unsigned int));
-	classDistArr[1] = classDistArr[0] + numClasses;
+	unsigned int* leftDist;
+	unsigned int* rightDist;
+	leftDist = (unsigned int *) malloc(numClasses * sizeof(unsigned int));
+	rightDist = (unsigned int *) malloc(numClasses * sizeof(unsigned int));
 
-	unsigned int *selectedClassDistArr[NUM_CHILDREN];
-	selectedClassDistArr[0] = (unsigned int *)
-		malloc(NUM_CHILDREN * numClasses * sizeof(unsigned int));
-	selectedClassDistArr[1] = selectedClassDistArr[0] + numClasses;
+	unsigned int* selectedLeft;
+	unsigned int* selectedRight;
+	selectedLeft = (unsigned int *) malloc(numClasses * sizeof(unsigned int));
+	selectedRight = (unsigned int *) malloc(numClasses * sizeof(unsigned int));
 
 	// Store sorted values of that feature with indices
 	MiniInstance *selectedMiniInstanceArr =
@@ -133,9 +135,8 @@ TreeNode *TreeFactory::Split(MiniInstance * miniInstanceArr,
 							  instanceIndex].featureAttrArray[randFeaIndex];
 		sort(miniInstanceArr, miniInstanceArr + numInstances, Compare);
 
-		memset(classDistArr[0], 0, numClasses * sizeof(unsigned int));
-		memmove(classDistArr[1],
-				parentClassDist, numClasses * sizeof(unsigned int));
+		memset(leftDist, 0, numClasses * sizeof(unsigned int));
+		memmove(rightDist, parentClassDist, numClasses * sizeof(unsigned int));
 
 		bool featureIndexStored = false;
 		for (unsigned int candidateId = 1;
@@ -143,8 +144,8 @@ TreeNode *TreeFactory::Split(MiniInstance * miniInstanceArr,
 		{
 			unsigned int preCandidateId = candidateId - 1;
 
-			classDistArr[0][miniInstanceArr[preCandidateId].classIndex]++;
-			classDistArr[1][miniInstanceArr[preCandidateId].classIndex]--;
+			leftDist[miniInstanceArr[preCandidateId].classIndex]++;
+			rightDist[miniInstanceArr[preCandidateId].classIndex]--;
 
 			if (miniInstanceArr[preCandidateId].featureValue <
 				miniInstanceArr[candidateId].featureValue)
@@ -152,25 +153,18 @@ TreeNode *TreeFactory::Split(MiniInstance * miniInstanceArr,
 				double splitThreshold =
 					(miniInstanceArr[preCandidateId].featureValue +
 					 miniInstanceArr[candidateId].featureValue) / 2.0;
-				childSizeArr[0] = candidateId;
-				childSizeArr[1] = numInstances - candidateId;
+				leftSize = candidateId;
+				rightSize = numInstances - candidateId;
 
-				// double giniImpurity = giniParent;
 				double infoGain = entropyParent;
 
 				// Compute entropy of children
-				for (unsigned int childId = 0; childId < NUM_CHILDREN;
-					 childId++)
-				{
-					double numChildren = childSizeArr[childId];
-					double entropyChild =
-						ComputeEntropy(classDistArr[childId], numChildren);
-					infoGain -=
-						numChildren / (double) numInstances *entropyChild;
-				}
+				double entropyChild = ComputeEntropy(leftDist, leftSize);
+				infoGain -= leftSize / (double) numInstances * entropyChild;
 
-				// Get max split outcome and related feature
-				// if (giniImpurityMax < giniImpurity)
+				entropyChild = ComputeEntropy(rightDist, rightSize);
+				infoGain -= rightSize / (double) numInstances * entropyChild;
+
 				if (infoGainMax < infoGain)
 				{
 					if (!featureIndexStored)
@@ -183,13 +177,11 @@ TreeNode *TreeFactory::Split(MiniInstance * miniInstanceArr,
 						featureIndexStored = true;
 					}
 
-					memmove(selectedClassDistArr[0],
-							classDistArr[0],
-							NUM_CHILDREN * numClasses * sizeof(unsigned int));
+					memmove(selectedLeft, leftDist, numClasses * sizeof(unsigned int));
+					memmove(selectedRight, rightDist, numClasses * sizeof(unsigned int));
 
-					selectedChildSizeArr[0] = childSizeArr[0];
-					selectedChildSizeArr[1] = childSizeArr[1];
-					// giniImpurityMax = giniImpurity;
+					selectedLeftSize = leftSize;
+					selectedRightSize = rightSize;
 					infoGainMax = infoGain;
 					selectedThreshold = splitThreshold;
 
@@ -200,47 +192,42 @@ TreeNode *TreeFactory::Split(MiniInstance * miniInstanceArr,
 		}
 	}
 
-	free(classDistArr[0]);
+	free(leftDist);
+	free(rightDist);
 
 	TreeNode *node;
 	if (!gainFound)
 	{
-		free(selectedClassDistArr[0]);
-		selectedClassDistArr[0] = nullptr;
+		free(selectedLeft);
+		free(selectedRight);
+		selectedLeft = nullptr;
+		selectedRight = nullptr;
 		node = nullptr;
-	}
-	// Split node
-	else
+	} else
 	{
 		node = new TreeNode;
 		node->featureIndex = selectedFeaIndex;
 		node->threshold = selectedThreshold;
-		node->childrenArr =
-			(TreeNode **) malloc(NUM_CHILDREN * sizeof(TreeNode *));
+		node->left = (TreeNode *) malloc(sizeof(TreeNode));
+		node->right = (TreeNode *) malloc(sizeof(TreeNode));
 
 		height++;
 
 		bool emptyChildFound = false;
 
-		// Split children
-		for (unsigned int childId = 0; childId < NUM_CHILDREN; childId++)
-		{
-			// Consider NUM_CHILDREN is 2, childId is either 0 or 1.
-			MiniInstance *childMiniInstanceArr =
-				selectedMiniInstanceArr + childId * selectedChildSizeArr[0];
+		MiniInstance *leftMiniInstanceArr = selectedMiniInstanceArr;
+		node->left = Split(leftMiniInstanceArr, featureIndexArray, selectedLeft, selectedLeftSize, height);
 
-			node->childrenArr[childId] = Split(childMiniInstanceArr,
-											   featureIndexArray,
-											   selectedClassDistArr[childId],
-											   selectedChildSizeArr[childId],
-											   height);
+		MiniInstance *rightMiniInstanceArr = selectedMiniInstanceArr + selectedLeftSize;
+		node->right = Split(rightMiniInstanceArr, featureIndexArray, selectedRight, selectedRightSize, height);
 
-			if (node->childrenArr[childId] == nullptr)
-				emptyChildFound = true;
-		}
+		if (node->left == nullptr || node->right == nullptr)
+			emptyChildFound = true;
 
-		free(selectedClassDistArr[0]);
-		selectedClassDistArr[0] = nullptr;
+		free(selectedLeft);
+		free(selectedRight);
+		selectedLeft = nullptr;
+		selectedRight = nullptr;
 
 		if (emptyChildFound)
 			node->classIndex = getIndexOfMax(parentClassDist, numClasses);
@@ -275,12 +262,16 @@ void TreeFactory::DestroyNode(TreeNode * node)
 	if (node == nullptr)
 		return;
 
-	if (node->childrenArr != nullptr)
-		for (unsigned int childId = 0; childId < NUM_CHILDREN; childId++)
-			DestroyNode(node->childrenArr[childId]);
+	if (node->left != nullptr)
+		DestroyNode(node->left);
+	if (node->right != nullptr)
+		DestroyNode(node->right);
 
-	free(node->childrenArr);
-	node->childrenArr = nullptr;
+	free(node->left);
+	node->left = nullptr;
+	free(node->right);
+	node->right = nullptr;
+
 	delete node;
 	node = nullptr;
 }

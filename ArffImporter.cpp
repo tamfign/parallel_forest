@@ -80,7 +80,6 @@ void ArffImporter::Read(const char *fileName)
 				feature.name = featureName;
 				feature.min = 0.0;
 				feature.max = 0.0;
-				feature.mean = 0.0;
 				featureVec.push_back(feature);
 			}
 			// Read class names
@@ -154,12 +153,6 @@ void ArffImporter::Read(const char *fileName)
 			}
 
 			unsigned int instanceSize = instanceVec.size();
-
-			// Compute bucket size and mean value for each numerical attribute
-			for (unsigned int i = 0; i < numFeatures; i++)
-			{
-				featureVec[i].mean = featureValueSumArr[i] / instanceSize;
-			}
 
 			free(featureValueSumArr);
 			featureValueSumArr = nullptr;

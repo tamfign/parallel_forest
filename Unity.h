@@ -32,7 +32,8 @@ struct TreeNode {
 	double threshold;
 	unsigned int featureIndex;
 	unsigned short classIndex;
-	TreeNode **childrenArr;
+	TreeNode *left;
+	TreeNode *right;
 };
 
 bool Compare(const MiniInstance & eleX, const MiniInstance & eleY);
