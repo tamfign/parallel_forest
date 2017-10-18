@@ -99,13 +99,13 @@ TreeNode *TreeFactory::Split(MiniInstance * miniInstanceArr,
 	unsigned int selectedLeftSize, selectedRightSize;
 
 	// Init child class distribution vector
-	unsigned int *leftDist;
-	unsigned int *rightDist;
+	unsigned int* leftDist;
+	unsigned int* rightDist;
 	leftDist = (unsigned int *) malloc(numClasses * sizeof(unsigned int));
 	rightDist = (unsigned int *) malloc(numClasses * sizeof(unsigned int));
 
-	unsigned int *selectedLeft;
-	unsigned int *selectedRight;
+	unsigned int* selectedLeft;
+	unsigned int* selectedRight;
 	selectedLeft = (unsigned int *) malloc(numClasses * sizeof(unsigned int));
 	selectedRight = (unsigned int *) malloc(numClasses * sizeof(unsigned int));
 
@@ -131,8 +131,8 @@ TreeNode *TreeFactory::Split(MiniInstance * miniInstanceArr,
 		// Get all values of that feature with indices and sort them.
 		for (unsigned int i = 0; i < numInstances; i++)
 			miniInstanceArr[i].featureValue =
-				instanceTable[miniInstanceArr[i].instanceIndex].
-				featureAttrArray[randFeaIndex];
+				instanceTable[miniInstanceArr[i].
+							  instanceIndex].featureAttrArray[randFeaIndex];
 		sort(miniInstanceArr, miniInstanceArr + numInstances, Compare);
 
 		memset(leftDist, 0, numClasses * sizeof(unsigned int));
@@ -160,10 +160,10 @@ TreeNode *TreeFactory::Split(MiniInstance * miniInstanceArr,
 
 				// Compute entropy of children
 				double entropyChild = ComputeEntropy(leftDist, leftSize);
-				infoGain -= leftSize / (double) numInstances *entropyChild;
+				infoGain -= leftSize / (double) numInstances * entropyChild;
 
 				entropyChild = ComputeEntropy(rightDist, rightSize);
-				infoGain -= rightSize / (double) numInstances *entropyChild;
+				infoGain -= rightSize / (double) numInstances * entropyChild;
 
 				if (infoGainMax < infoGain)
 				{
@@ -177,10 +177,8 @@ TreeNode *TreeFactory::Split(MiniInstance * miniInstanceArr,
 						featureIndexStored = true;
 					}
 
-					memmove(selectedLeft, leftDist,
-							numClasses * sizeof(unsigned int));
-					memmove(selectedRight, rightDist,
-							numClasses * sizeof(unsigned int));
+					memmove(selectedLeft, leftDist, numClasses * sizeof(unsigned int));
+					memmove(selectedRight, rightDist, numClasses * sizeof(unsigned int));
 
 					selectedLeftSize = leftSize;
 					selectedRightSize = rightSize;
@@ -218,15 +216,10 @@ TreeNode *TreeFactory::Split(MiniInstance * miniInstanceArr,
 		bool emptyChildFound = false;
 
 		MiniInstance *leftMiniInstanceArr = selectedMiniInstanceArr;
-		node->left =
-			Split(leftMiniInstanceArr, featureIndexArray, selectedLeft,
-				  selectedLeftSize, height);
+		node->left = Split(leftMiniInstanceArr, featureIndexArray, selectedLeft, selectedLeftSize, height);
 
-		MiniInstance *rightMiniInstanceArr =
-			selectedMiniInstanceArr + selectedLeftSize;
-		node->right =
-			Split(rightMiniInstanceArr, featureIndexArray, selectedRight,
-				  selectedRightSize, height);
+		MiniInstance *rightMiniInstanceArr = selectedMiniInstanceArr + selectedLeftSize;
+		node->right = Split(rightMiniInstanceArr, featureIndexArray, selectedRight, selectedRightSize, height);
 
 		if (node->left == nullptr || node->right == nullptr)
 			emptyChildFound = true;

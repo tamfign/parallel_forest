@@ -72,26 +72,23 @@ void RandomForest::Classify(const Instance * instanceTable,
 
 	if (rank == 0)
 		CheckMPIErr(MPI_Reduce(MPI_IN_PLACE, votes, numClasses * numInstances,
-							   MPI_UNSIGNED, MPI_SUM, 0, MPI_COMM_WORLD), rank);
+							   MPI_UNSIGNED, MPI_SUM, 0, MPI_COMM_WORLD),
+					rank);
 	else
 		CheckMPIErr(MPI_Reduce(votes, nullptr, numClasses * numInstances,
-							   MPI_UNSIGNED, MPI_SUM, 0, MPI_COMM_WORLD), rank);
+							   MPI_UNSIGNED, MPI_SUM, 0, MPI_COMM_WORLD),
+					rank);
 
 	if (rank == 0)
 	{
-		Analysis(votes, instanceTable, numClasses, correctCounter,
-				 numInstances);
+		Analysis(votes, instanceTable, numClasses, correctCounter, numInstances);
 	}
 
 	free(votes);
 	votes = nullptr;
 }
 
-inline void RandomForest::Analysis(unsigned int *votes,
-								   const Instance * instanceTable,
-								   const unsigned short numClasses,
-								   unsigned int correctCounter,
-								   const unsigned int numInstances)
+inline void RandomForest::Analysis(unsigned int *votes, const Instance * instanceTable, const unsigned short numClasses, unsigned int correctCounter, const unsigned int numInstances)
 {
 #pragma omp parallel for reduction(+: correctCounter) schedule(static)
 	for (unsigned int i = 0; i < numInstances; i++)
@@ -124,12 +121,10 @@ inline void RandomForest::Classify(const Instance & instance,
 		while (node->left != nullptr || node->right != nullptr)
 		{
 			TreeNode *tmp;
-			if (instance.featureAttrArray[node->featureIndex] >=
-				node->threshold)
+			if (instance.featureAttrArray[node->featureIndex] >= node->threshold)
 			{
 				tmp = node->right;
-			} else
-			{
+			} else {
 				tmp = node->left;
 			}
 			if (tmp == nullptr)

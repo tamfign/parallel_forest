@@ -21,12 +21,9 @@ class RandomForest {
 				  const unsigned int numInstances);
 
   private:
-	 inline void Analysis(unsigned int *votes, const Instance * instanceTable,
-						  const unsigned short numClasses,
-						  const unsigned int correctCounter,
-						  const unsigned int numInstances);
-	inline void Classify(const Instance & instance, unsigned int *votes,
-						 const unsigned int index);
+	inline void Analysis(unsigned int *votes, const Instance * instanceTable, const unsigned short numClasses, const unsigned int correctCounter, const unsigned int numInstances);
+	 inline void Classify(const Instance & instance,
+						  unsigned int *votes, const unsigned int index);
 
 	 vector < char *>classVec;
 	 vector < NumericAttr > featureVec;
