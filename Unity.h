@@ -1,29 +1,55 @@
 
-#ifndef _HELPER_H_
-#define _HELPER_H_
+#ifndef _UNITY_H_
+#define _UNITY_H_
 
-#include "BasicDataStructures.h"
 #include <math.h>
 #include <mpi.h>
 #include <algorithm>
 #include <vector>
 
-
 using namespace std;
-using namespace BasicDataStructures;
 
-namespace MyHelper
-{
 #define MPI_ERROR_MESSAGE_BUFF_SIZE 50
+
+    struct Instance
+    {
+        double* featureAttrArray;
+        unsigned short classIndex;
+    };
+
+    struct MiniInstance
+    {
+        double featureValue;
+        unsigned int instanceIndex;
+        unsigned short classIndex;
+    };
+
+    struct NumericAttr
+    {
+        char* name;
+        double min;
+        double max;
+    };
+
+    struct TreeNode
+    {
+        double threshold;
+        unsigned int featureIndex;
+        unsigned short classIndex;
+        TreeNode** childrenArr;
+    };
 
     bool Compare(
         const MiniInstance& eleX,
         const MiniInstance& eleY );
+        
     bool StrEqualCaseSen( const char* str1, const char* str2 );
     bool StrEqualCaseInsen( const char* str1, const char* str2 );
+    
     // Include string terminator
     unsigned int GetStrLength( const char* str );
     bool IsLetter( const char c );
+    
     Instance Tokenize(
         const char* str, 
         const vector<NumericAttr>& featureVec );
@@ -31,12 +57,11 @@ namespace MyHelper
     unsigned int getIndexOfMax(
         const unsigned int* uintArray, 
         const unsigned int length );
-    // Consume a sorted array, remove duplicates in place, 
-    // and return the number of unique elements.
+        
     unsigned int removeDuplicates(
         double* sortedArr,
         unsigned int length );
+        
     void CheckMPIErr( int errorCode, int mpiNodeId );
-}
 
 #endif

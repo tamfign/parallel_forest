@@ -9,9 +9,6 @@
 #include <string.h>
 
 
-using namespace BasicDataStructures;
-using namespace MyHelper;
-
 class TreeFactory
 {
 #define MIN_NODE_SIZE          1

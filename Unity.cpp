@@ -1,15 +1,14 @@
 
-#include "Helper.h"
+#include "Unity.h"
 
-
-bool MyHelper::Compare(
+bool Unity::Compare(
     const MiniInstance& eleX, 
     const MiniInstance& eleY )
 {
     return eleX.featureValue < eleY.featureValue;
 }
 
-Instance MyHelper::Tokenize(
+Instance Unity::Tokenize(
     const char* str, 
     const vector<NumericAttr>& featureVec )
 {
@@ -33,9 +32,6 @@ Instance MyHelper::Tokenize(
         {
             unsigned int tokenLen = iter - startIndex;
 
-            // Compare the token with every feature name
-            // Might use a hashmap (with key: name, value: index) 
-            // to speed up
             for (unsigned int feaIndex = 0;
                 feaIndex < numFeatures; feaIndex++)
             {
@@ -58,12 +54,12 @@ Instance MyHelper::Tokenize(
     return instance;
 }
 
-bool MyHelper::IsLetter( const char c )
+bool Unity::IsLetter( const char c )
 {
     return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z');
 }
 
-bool MyHelper::StrEqualCaseSen( const char* str1, const char* str2 )
+bool Unity::StrEqualCaseSen( const char* str1, const char* str2 )
 {
     unsigned short i = 0;
     while (str1[i] != '\0' && str1[i] == str2[i]) i++;
@@ -71,7 +67,7 @@ bool MyHelper::StrEqualCaseSen( const char* str1, const char* str2 )
     return (str1[i] == '\0' && str2[i] == '\0') ? true : false;
 }
 
-bool MyHelper::StrEqualCaseInsen( const char* str1, const char* str2 )
+bool Unity::StrEqualCaseInsen( const char* str1, const char* str2 )
 {
     unsigned short i = 0;
     while (str1[i] != '\0' &&
@@ -82,7 +78,7 @@ bool MyHelper::StrEqualCaseInsen( const char* str1, const char* str2 )
     return (str1[i] == '\0' && str2[i] == '\0') ? true : false;
 }
 
-unsigned int MyHelper::GetStrLength( const char* str )
+unsigned int Unity::GetStrLength( const char* str )
 {
     unsigned int len = 0;
 
@@ -91,14 +87,14 @@ unsigned int MyHelper::GetStrLength( const char* str )
     return len;
 }
 
-unsigned int MyHelper::getIndexOfMax(
+unsigned int Unity::getIndexOfMax(
     const unsigned int* uintArray, 
     const unsigned int length )
 {
     return max_element( uintArray, uintArray + length ) - uintArray;
 }
 
-unsigned int MyHelper::removeDuplicates(
+unsigned int Unity::removeDuplicates(
     double* sortedArr, 
     unsigned int length )
 {
@@ -118,7 +114,7 @@ unsigned int MyHelper::removeDuplicates(
     return uniqueId;
 }
 
-void MyHelper::CheckMPIErr( int errorCode, int mpiNodeId )
+void Unity::CheckMPIErr( int errorCode, int mpiNodeId )
 {
     if (errorCode != MPI_SUCCESS)
     {

@@ -125,6 +125,7 @@ TreeNode* TreeFactory::Split(
         // Sample (note max of rand() is around 32000)
         unsigned int randPos = rand() % numRestFea;
         unsigned int randFeaIndex = featureIndexArray[randPos];
+        
         // Swap
         featureIndexArray[randPos] = featureIndexArray[--numRestFea];
         featureIndexArray[numRestFea] = randFeaIndex;
