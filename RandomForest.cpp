@@ -3,7 +3,11 @@
 
 RandomForest::RandomForest()
 {
-	MPI_Init(nullptr, nullptr);
+	// Init MPI
+	MPI_Initialized(&inited);
+	if (!inited)
+		MPI_Init(nullptr, nullptr);
+
 	MPI_Comm_size(MPI_COMM_WORLD, &size);
 	MPI_Comm_rank(MPI_COMM_WORLD, &rank);
 }
@@ -19,7 +23,9 @@ RandomForest::~RandomForest()
 		root = nullptr;
 	}
 
-	MPI_Finalize();
+	MPI_Initialized(&inited);
+	if (inited)
+		MPI_Finalize();
 }
 
 void RandomForest::Train(const Instance * instanceTable,
@@ -30,19 +36,18 @@ void RandomForest::Train(const Instance * instanceTable,
 	classVec = cv;
 	featureVec = fv;
 
-	if (NUM_TREES % size <= 0)
+	if (NUM_TREES % size > 0)
 	{
-		numTrees = NUM_TREES / size;
-	} else {
 		numTrees = NUM_TREES / size + 1;
-		if (rank == size - 1) {
+		if (rank == size - 1)
 			numTrees = NUM_TREES - numTrees * (size - 1);
-		}
-	}
+	} else
+		numTrees = NUM_TREES / size;
 
 	root = (TreeNode **) malloc(numTrees * sizeof(TreeNode *));
 	treeFactory.Init(fv, cv, instanceTable, numInstances);
 
+	srand(rank + 1);
 #pragma omp parallel
 	{
 #pragma omp for schedule(dynamic)
@@ -56,24 +61,26 @@ void RandomForest::Train(const Instance * instanceTable,
 void RandomForest::Classify(const Instance * instanceTable,
 							const unsigned int numInstances)
 {
+	unsigned short numClasses = classVec.size();
 	unsigned int correctCounter = 0;
 	unsigned int *votes = (unsigned int *)
-		calloc(classVec.size() * numInstances, sizeof(unsigned int));
+		calloc(numClasses * numInstances, sizeof(unsigned int));
 
 #pragma omp parallel for schedule(dynamic)
 	for (unsigned int i = 0; i < numInstances; i++)
 		Classify(instanceTable[i], votes, i);
 
 	if (rank == 0)
-		CheckMPIErr(MPI_Reduce(MPI_IN_PLACE, votes, classVec.size() * numInstances,
+		CheckMPIErr(MPI_Reduce(MPI_IN_PLACE, votes, numClasses * numInstances,
 							   MPI_UNSIGNED, MPI_SUM, 0, MPI_COMM_WORLD), rank);
 	else
-		CheckMPIErr(MPI_Reduce(votes, nullptr, classVec.size() * numInstances,
+		CheckMPIErr(MPI_Reduce(votes, nullptr, numClasses * numInstances,
 							   MPI_UNSIGNED, MPI_SUM, 0, MPI_COMM_WORLD), rank);
 
 	if (rank == 0)
 	{
-		Analysis(votes, instanceTable, correctCounter, numInstances);
+		Analysis(votes, instanceTable, numClasses, correctCounter,
+				 numInstances);
 	}
 
 	free(votes);
@@ -82,6 +89,7 @@ void RandomForest::Classify(const Instance * instanceTable,
 
 inline void RandomForest::Analysis(unsigned int *votes,
 								   const Instance * instanceTable,
+								   const unsigned short numClasses,
 								   unsigned int correctCounter,
 								   const unsigned int numInstances)
 {
@@ -89,7 +97,7 @@ inline void RandomForest::Analysis(unsigned int *votes,
 	for (unsigned int i = 0; i < numInstances; i++)
 	{
 		unsigned short predictedClassIndex =
-			getIndexOfMax(votes + i * classVec.size(), classVec.size());
+			getIndexOfMax(votes + i * numClasses, numClasses);
 		if (predictedClassIndex == instanceTable[i].classIndex)
 			correctCounter++;
 	}
@@ -105,6 +113,7 @@ inline void RandomForest::Classify(const Instance & instance,
 								   unsigned int *votes,
 								   const unsigned int instId)
 {
+	unsigned short numClasses = classVec.size();
 
 	for (unsigned int treeId = 0; treeId < numTrees; treeId++)
 	{
@@ -129,6 +138,6 @@ inline void RandomForest::Classify(const Instance & instance,
 				node = tmp;
 		}
 
-		votes[instId * classVec.size() + node->classIndex]++;
+		votes[instId * numClasses + node->classIndex]++;
 	}
 }

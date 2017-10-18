@@ -22,6 +22,7 @@ class RandomForest {
 
   private:
 	 inline void Analysis(unsigned int *votes, const Instance * instanceTable,
+						  const unsigned short numClasses,
 						  const unsigned int correctCounter,
 						  const unsigned int numInstances);
 	inline void Classify(const Instance & instance, unsigned int *votes,
