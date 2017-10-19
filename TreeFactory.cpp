@@ -7,8 +7,8 @@ TreeFactory::~TreeFactory()
 }
 
 TreeFactory::TreeFactory(const vector < NumericAttr > &fv,
-					   const vector < char *>&cv,
-					   const Instance * it, const unsigned int numInstances)
+						 const vector < char *>&cv,
+						 const Instance * it, const unsigned int numInstances)
 {
 	featureVec = fv;
 	classVec = cv;
@@ -126,8 +126,8 @@ TreeNode *TreeFactory::Split(MiniInstance * miniInstanceArr,
 		// Get all values of that feature with indices and sort them.
 		for (unsigned int i = 0; i < numInstances; i++)
 			miniInstanceArr[i].featureValue =
-				instanceTable[miniInstanceArr[i].instanceIndex].
-				featureAttrArray[randFeaIndex];
+				instanceTable[miniInstanceArr[i].
+							  instanceIndex].featureAttrArray[randFeaIndex];
 		sort(miniInstanceArr, miniInstanceArr + numInstances, Compare);
 
 		memset(leftDist, 0, numClasses * sizeof(unsigned int));

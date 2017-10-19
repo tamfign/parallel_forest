@@ -13,8 +13,8 @@ class TreeFactory {
 
   public:
 	TreeFactory(const vector < NumericAttr > &fv,
-			  const vector < char *>&cv,
-			  const Instance * it, const unsigned int numInstances);
+				const vector < char *>&cv,
+				const Instance * it, const unsigned int numInstances);
 	~TreeFactory();
 
 	TreeNode *Generate(const unsigned int numFeaToSelect);

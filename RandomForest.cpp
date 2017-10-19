@@ -31,9 +31,11 @@ void RandomForest::Train(const Instance * instanceTable,
 	if (NUM_TREES % size <= 0)
 	{
 		numTrees = NUM_TREES / size;
-	} else {
+	} else
+	{
 		numTrees = NUM_TREES / size + 1;
-		if (rank == size - 1) {
+		if (rank == size - 1)
+		{
 			numTrees = NUM_TREES - numTrees * (size - 1);
 		}
 	}
@@ -64,10 +66,10 @@ void RandomForest::Classify(const Instance * instanceTable,
 
 	if (rank == 0)
 		MPI_Reduce(MPI_IN_PLACE, votes, classVec.size() * numInstances,
-							   MPI_UNSIGNED, MPI_SUM, 0, MPI_COMM_WORLD);
+				   MPI_UNSIGNED, MPI_SUM, 0, MPI_COMM_WORLD);
 	else
 		MPI_Reduce(votes, nullptr, classVec.size() * numInstances,
-							   MPI_UNSIGNED, MPI_SUM, 0, MPI_COMM_WORLD);
+				   MPI_UNSIGNED, MPI_SUM, 0, MPI_COMM_WORLD);
 
 	if (rank == 0)
 	{

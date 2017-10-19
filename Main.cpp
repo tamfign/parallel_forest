@@ -7,7 +7,7 @@
 
 using namespace std;
 
-int main(int argc, char** argv)
+int main(int argc, char **argv)
 {
 	MPI_Comm comm2d;
 	int up, down;
@@ -16,7 +16,8 @@ int main(int argc, char** argv)
 	int rank, size;
 	time_t start, end;
 
-	if (argc < 2) {
+	if (argc < 2)
+	{
 		cout << "Run with training file and test file as parameters" << endl;
 		return -1;
 	}
@@ -34,20 +35,20 @@ int main(int argc, char** argv)
 	MPI_Comm_rank(MPI_COMM_WORLD, &rank);
 	MPI_Cart_shift(comm2d, 1, 1, &down, &up);
 
-	ArffImporter* trainSetImporter = new ArffImporter(argv[1]);
-	ArffImporter* testSetImporter = new ArffImporter(argv[2]);
-	RandomForest* classifier = new RandomForest(rank, size);
+	ArffImporter *trainSetImporter = new ArffImporter(argv[1]);
+	ArffImporter *testSetImporter = new ArffImporter(argv[2]);
+	RandomForest *classifier = new RandomForest(rank, size);
 
-  time( &start );
+	time(&start);
 	classifier->Train(trainSetImporter->GetInstances(),
-					 trainSetImporter->GetFeatures(),
-					 trainSetImporter->GetClassAttr(),
-					 trainSetImporter->GetNumInstances());
+					  trainSetImporter->GetFeatures(),
+					  trainSetImporter->GetClassAttr(),
+					  trainSetImporter->GetNumInstances());
 	classifier->Classify(testSetImporter->GetInstances(),
-						testSetImporter->GetNumInstances());
+						 testSetImporter->GetNumInstances());
 
-  time( &end );
-  cout << "Time taken is: " << difftime(end, start);
+	time(&end);
+	cout << "Time taken is: " << difftime(end, start);
 
 	free(classifier);
 	free(trainSetImporter);
