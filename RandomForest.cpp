@@ -65,11 +65,11 @@ void RandomForest::Classify(const Instance * instanceTable,
 		Classify(instanceTable[i], votes, i);
 
 	if (rank == 0)
-		CheckMPIErr(MPI_Reduce(MPI_IN_PLACE, votes, classVec.size() * numInstances,
-							   MPI_UNSIGNED, MPI_SUM, 0, MPI_COMM_WORLD), rank);
+		MPI_Reduce(MPI_IN_PLACE, votes, classVec.size() * numInstances,
+							   MPI_UNSIGNED, MPI_SUM, 0, MPI_COMM_WORLD);
 	else
-		CheckMPIErr(MPI_Reduce(votes, nullptr, classVec.size() * numInstances,
-							   MPI_UNSIGNED, MPI_SUM, 0, MPI_COMM_WORLD), rank);
+		MPI_Reduce(votes, nullptr, classVec.size() * numInstances,
+							   MPI_UNSIGNED, MPI_SUM, 0, MPI_COMM_WORLD);
 
 	if (rank == 0)
 	{

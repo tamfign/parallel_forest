@@ -51,6 +51,4 @@ unsigned int getIndexOfMax(const unsigned int *uintArray,
 
 unsigned int removeDuplicates(double *sortedArr, unsigned int length);
 
-void CheckMPIErr(int errorCode, int mpiNodeId);
-
 #endif

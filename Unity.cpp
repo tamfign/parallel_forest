@@ -107,15 +107,3 @@ unsigned int removeDuplicates(double *sortedArr, unsigned int length)
 
 	return uniqueId;
 }
-
-void CheckMPIErr(int errorCode, int mpiNodeId)
-{
-	if (errorCode != MPI_SUCCESS)
-	{
-		char errorString[MPI_ERROR_MESSAGE_BUFF_SIZE];
-		int strLen;
-
-		MPI_Error_string(errorCode, errorString, &strLen);
-		fprintf(stderr, "%3d: %s\n", mpiNodeId, errorString);
-	}
-}
