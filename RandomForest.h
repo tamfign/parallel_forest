@@ -11,7 +11,7 @@ class RandomForest {
 #define NUM_TREES               100
 
   public:
-	RandomForest();
+	RandomForest(int rank, int size);
 	~RandomForest();
 
 	void Train(const Instance * instanceTable,
@@ -36,7 +36,6 @@ class RandomForest {
 
 	int rank;
 	int size;
-	int inited;
 };
 
 #endif

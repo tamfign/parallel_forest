@@ -1,11 +1,10 @@
 
 #include "RandomForest.h"
 
-RandomForest::RandomForest()
+RandomForest::RandomForest(int rank, int size)
 {
-	MPI_Init(nullptr, nullptr);
-	MPI_Comm_size(MPI_COMM_WORLD, &size);
-	MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+	RandomForest::rank = rank;
+	RandomForest::size = size;
 }
 
 RandomForest::~RandomForest()
@@ -18,8 +17,6 @@ RandomForest::~RandomForest()
 		free(root);
 		root = nullptr;
 	}
-
-	MPI_Finalize();
 }
 
 void RandomForest::Train(const Instance * instanceTable,
