@@ -48,7 +48,10 @@ int main(int argc, char **argv)
 						 testSetImporter->GetNumInstances());
 
 	time(&end);
-	cout << "Time taken is: " << difftime(end, start);
+
+	if (rank == 0)
+		cout << "Time taken is: " << difftime(end, start)
+			<< "sec" << endl;
 
 	free(classifier);
 	free(trainSetImporter);
