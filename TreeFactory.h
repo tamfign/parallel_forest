@@ -26,8 +26,7 @@ class TreeFactory {
 					  unsigned int *featureIndexArray,
 					  const unsigned int *parentClassDist,
 					  const unsigned int numInstances, unsigned int height);
-	inline double ComputeGini(const unsigned int *classDistribution,
-							  const unsigned int numInstances);
+
 	inline double ComputeEntropy(const unsigned int *classDistribution,
 								 const unsigned int numInstances);
 
