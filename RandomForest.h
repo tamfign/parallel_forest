@@ -4,7 +4,9 @@
 
 #include "TreeFactory.h"
 #include <omp.h>
-#include <time.h>
+#include <iostream>
+
+using namespace std;
 
 class RandomForest {
 #define RANDOM_FEATURE_SET_SIZE 10
@@ -30,7 +32,7 @@ class RandomForest {
 	 vector < char *>classVec;
 	 vector < NumericAttr > featureVec;
 
-	TreeFactory treeFactory;
+	TreeFactory *treeFactory;
 	TreeNode **root = nullptr;
 	unsigned int numTrees;
 

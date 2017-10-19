@@ -1,17 +1,12 @@
 
 #include "TreeFactory.h"
 
-TreeFactory::TreeFactory()
-{
-
-}
-
 TreeFactory::~TreeFactory()
 {
 
 }
 
-void TreeFactory::Init(const vector < NumericAttr > &fv,
+TreeFactory::TreeFactory(const vector < NumericAttr > &fv,
 					   const vector < char *>&cv,
 					   const Instance * it, const unsigned int numInstances)
 {

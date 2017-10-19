@@ -13,10 +13,11 @@ RandomForest::~RandomForest()
 	if (root != nullptr)
 	{
 		for (unsigned int i = 0; i < numTrees; i++)
-			treeFactory.DestroyNode(root[i]);
+			treeFactory->DestroyNode(root[i]);
 		free(root);
 		root = nullptr;
 	}
+	free(treeFactory);
 }
 
 void RandomForest::Train(const Instance * instanceTable,
@@ -38,14 +39,14 @@ void RandomForest::Train(const Instance * instanceTable,
 	}
 
 	root = (TreeNode **) malloc(numTrees * sizeof(TreeNode *));
-	treeFactory.Init(fv, cv, instanceTable, numInstances);
+	treeFactory = new TreeFactory(fv, cv, instanceTable, numInstances);
 
 #pragma omp parallel
 	{
 #pragma omp for schedule(dynamic)
 		for (unsigned int treeId = 0; treeId < numTrees; treeId++)
 		{
-			root[treeId] = treeFactory.Generate(RANDOM_FEATURE_SET_SIZE);
+			root[treeId] = treeFactory->Generate(RANDOM_FEATURE_SET_SIZE);
 		}
 	}
 }
@@ -94,8 +95,8 @@ inline void RandomForest::Analysis(unsigned int *votes,
 	double correctRate = (double) correctCounter / (double) numInstances;
 	double incorrectRate = 1.0 - correctRate;
 
-	printf("Correct rate: %f\n", correctRate);
-	printf("Incorrect rate: %f\n", incorrectRate);
+	cout << "Correct rate: " << correctRate << endl;
+	cout << "Incorrect rate: " << incorrectRate << endl;
 }
 
 inline void RandomForest::Classify(const Instance & instance,

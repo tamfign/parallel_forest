@@ -12,12 +12,11 @@ class TreeFactory {
 #define MIN_NODE_SIZE_TO_SPLIT 2
 
   public:
-	TreeFactory();
-	~TreeFactory();
-
-	void Init(const vector < NumericAttr > &fv,
+	TreeFactory(const vector < NumericAttr > &fv,
 			  const vector < char *>&cv,
 			  const Instance * it, const unsigned int numInstances);
+	~TreeFactory();
+
 	TreeNode *Generate(const unsigned int numFeaToSelect);
 	void PrintTree(const TreeNode * node, unsigned int h);
 	void DestroyNode(TreeNode * node);

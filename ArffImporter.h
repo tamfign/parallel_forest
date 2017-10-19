@@ -15,16 +15,16 @@ class ArffImporter {
 #define KEYWORD_NUMERIC   "NUMERIC"
 
   public:
-	ArffImporter();
+	ArffImporter(const char *fileName);
 	~ArffImporter();
 
-	void Read(const char *fileName);
 	 vector < char *>GetClassAttr();
 	 vector < NumericAttr > GetFeatures();
 	Instance *GetInstances();
 	unsigned int GetNumInstances();
 
   private:
+	void Read(const char *fileName);
 	void BuildInstanceTable();
 
 	 vector < char *>classVec;

@@ -3,9 +3,9 @@
 
 using namespace std;
 
-ArffImporter::ArffImporter()
+ArffImporter::ArffImporter(const char *fileName)
 {
-
+	Read(fileName);
 }
 
 ArffImporter::~ArffImporter()
