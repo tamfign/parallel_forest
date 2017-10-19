@@ -3,7 +3,6 @@
 #define _RANDOM_FOREST_H_
 
 #include "TreeFactory.h"
-#include <omp.h>
 #include <iostream>
 
 using namespace std;

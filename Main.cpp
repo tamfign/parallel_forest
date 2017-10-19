@@ -2,6 +2,8 @@
 #include "ArffImporter.h"
 #include "RandomForest.h"
 #include <iostream>
+#include <omp.h>
+#include <time.h>
 
 using namespace std;
 
@@ -12,9 +14,10 @@ int main(int argc, char** argv)
 	int dims[2];
 	int period[2];
 	int rank, size;
+	time_t start, end;
 
 	if (argc < 2) {
-		cout << "Please run with training file and test file as parameters" << endl;
+		cout << "Run with training file and test file as parameters" << endl;
 		return -1;
 	}
 
@@ -33,14 +36,18 @@ int main(int argc, char** argv)
 
 	ArffImporter* trainSetImporter = new ArffImporter(argv[1]);
 	ArffImporter* testSetImporter = new ArffImporter(argv[2]);
-
 	RandomForest* classifier = new RandomForest(rank, size);
+
+  time( &start );
 	classifier->Train(trainSetImporter->GetInstances(),
 					 trainSetImporter->GetFeatures(),
 					 trainSetImporter->GetClassAttr(),
 					 trainSetImporter->GetNumInstances());
 	classifier->Classify(testSetImporter->GetInstances(),
 						testSetImporter->GetNumInstances());
+
+  time( &end );
+  cout << "Time taken is: " << difftime(end, start);
 
 	free(classifier);
 	free(trainSetImporter);
