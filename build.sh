@@ -6,4 +6,4 @@
 #SBATCH --output="result"
 
 # Run info and srun job launch
-srun ./exec Dataset/train/train-1000.arff Dataset/test/dev-1000.arff
+srun ./exec Dataset/train/train_1000.arff Dataset/test/dev_1000.arff
