@@ -8,8 +8,8 @@
 using namespace std;
 
 class RandomForest {
-#define RANDOM_FEATURE_SET_SIZE 10
-#define NUM_TREES               100
+#define RANDOM_FEATURE_SET_SIZE 20
+#define NUM_TREES               200
 
   public:
 	RandomForest(int rank, int size);
