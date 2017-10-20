@@ -1,5 +1,5 @@
 #!/bin/csh
-#SBATCH --time=1:00:00
+#SBATCH --time=00:10:00
 #SBATCH --nodes=10
 #SBATCH --ntasks=10
 #SBATCH --cpus-per-task=8
