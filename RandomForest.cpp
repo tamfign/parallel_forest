@@ -43,13 +43,10 @@ void RandomForest::Train(const Instance * instanceTable,
 	root = (TreeNode **) malloc(numTrees * sizeof(TreeNode *));
 	treeFactory = new TreeFactory(fv, cv, instanceTable, numInstances);
 
-#pragma omp parallel
+#pragma omp parallel for schedule(static)
+	for (unsigned int treeId = 0; treeId < numTrees; treeId++)
 	{
-#pragma omp for schedule(dynamic)
-		for (unsigned int treeId = 0; treeId < numTrees; treeId++)
-		{
-			root[treeId] = treeFactory->Generate(RANDOM_FEATURE_SET_SIZE);
-		}
+		root[treeId] = treeFactory->Generate(RANDOM_FEATURE_SET_SIZE);
 	}
 }
 
@@ -85,7 +82,7 @@ inline void RandomForest::Analysis(unsigned int *votes,
 								   unsigned int correctCounter,
 								   const unsigned int numInstances)
 {
-#pragma omp parallel for reduction(+: correctCounter) schedule(static)
+#pragma omp parallel for reduction(+: correctCounter) schedule(dynamic)
 	for (unsigned int i = 0; i < numInstances; i++)
 	{
 		unsigned short predictedClassIndex =
